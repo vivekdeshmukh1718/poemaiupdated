@@ -1,52 +1,59 @@
+
 'use server';
 
 /**
- * @fileOverview Generates a poem based on an uploaded photo.
+ * @fileOverview Generates a poem or shayari based on an uploaded photo and user preferences.
  *
- * - generatePoem - A function that generates a poem based on the uploaded photo.
- * - GeneratePoemInput - The input type for the generatePoem function.
- * - GeneratePoemOutput - The return type for the generatePoem function.
+ * - generateContent - A function that generates content (poem/shayari) based on the uploaded photo, desired language, and content type.
+ * - GenerateContentInput - The input type for the generateContent function.
+ * - GenerateContentOutput - The return type for the generateContent function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GeneratePoemInputSchema = z.object({
+const GenerateContentInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      "A photo to inspire the poem, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo to inspire the content, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+  language: z.string().optional().default('English').describe('The language for the content (e.g., "English", "Hindi", "Urdu"). Defaults to English if not provided.'),
+  contentType: z.enum(['poem', 'shayari']).describe('The type of content to generate (poem or shayari).'),
 });
-export type GeneratePoemInput = z.infer<typeof GeneratePoemInputSchema>;
+export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>;
 
-const GeneratePoemOutputSchema = z.object({
-  poem: z.string().describe('A poem inspired by the photo.'),
+const GenerateContentOutputSchema = z.object({
+  generatedText: z.string().describe('A poem or shayari inspired by the photo, in the specified language.'),
 });
-export type GeneratePoemOutput = z.infer<typeof GeneratePoemOutputSchema>;
+export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
-export async function generatePoem(input: GeneratePoemInput): Promise<GeneratePoemOutput> {
-  return generatePoemFlow(input);
+export async function generateContent(input: GenerateContentInput): Promise<GenerateContentOutput> {
+  return generateContentFlow(input);
 }
 
-const generatePoemPrompt = ai.definePrompt({
-  name: 'generatePoemPrompt',
-  input: {schema: GeneratePoemInputSchema},
-  output: {schema: GeneratePoemOutputSchema},
-  prompt: `You are a poet. You will write a poem inspired by the photo.
+const generateContentPrompt = ai.definePrompt({
+  name: 'generateContentPrompt',
+  input: {schema: GenerateContentInputSchema},
+  output: {schema: GenerateContentOutputSchema},
+  prompt: `You are a creative writer.
+Your task is to write a {{contentType}} inspired by the photo.
+The {{contentType}} should be in {{language}}.
+Ensure the output is only the {{contentType}} itself.
 
-  Photo: {{media url=photoDataUri}}
+Photo: {{media url=photoDataUri}}
   `,
 });
 
-const generatePoemFlow = ai.defineFlow(
+const generateContentFlow = ai.defineFlow(
   {
-    name: 'generatePoemFlow',
-    inputSchema: GeneratePoemInputSchema,
-    outputSchema: GeneratePoemOutputSchema,
+    name: 'generateContentFlow',
+    inputSchema: GenerateContentInputSchema,
+    outputSchema: GenerateContentOutputSchema,
   },
   async input => {
-    const {output} = await generatePoemPrompt(input);
-    return output!;
+    const {output} = await generateContentPrompt(input);
+    // Ensure generatedText is used as the key for the output to match GenerateContentOutputSchema
+    return { generatedText: output!.generatedText };
   }
 );

@@ -8,16 +8,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Wand2, Loader2 } from 'lucide-react';
+import { Upload, Wand2, Loader2, Feather } from 'lucide-react';
 
 interface PhotoUploadCardProps {
   onPhotoSelect: (photoDataUri: string) => void;
-  onGeneratePoem: () => void;
+  onGenerateRequest: (contentType: 'poem' | 'shayari') => void;
   isProcessing: boolean;
   selectedPhotoPreview: string | null;
 }
 
-export function PhotoUploadCard({ onPhotoSelect, onGeneratePoem, isProcessing, selectedPhotoPreview }: PhotoUploadCardProps) {
+export function PhotoUploadCard({ onPhotoSelect, onGenerateRequest, isProcessing, selectedPhotoPreview }: PhotoUploadCardProps) {
   const [internalPreview, setInternalPreview] = useState<string | null>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +45,7 @@ export function PhotoUploadCard({ onPhotoSelect, onGeneratePoem, isProcessing, s
           <Upload className="h-6 w-6 text-primary" />
           Upload Your Photo
         </CardTitle>
-        <CardDescription>Select an image to inspire a beautiful poem.</CardDescription>
+        <CardDescription>Select an image to inspire beautiful words.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -71,9 +71,9 @@ export function PhotoUploadCard({ onPhotoSelect, onGeneratePoem, isProcessing, s
           </div>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col sm:flex-row gap-2">
         <Button
-          onClick={onGeneratePoem}
+          onClick={() => onGenerateRequest('poem')}
           disabled={!currentPreview || isProcessing}
           className="w-full"
           size="lg"
@@ -84,6 +84,20 @@ export function PhotoUploadCard({ onPhotoSelect, onGeneratePoem, isProcessing, s
             <Wand2 className="mr-2 h-5 w-5" />
           )}
           Generate Poem
+        </Button>
+        <Button
+          onClick={() => onGenerateRequest('shayari')}
+          disabled={!currentPreview || isProcessing}
+          className="w-full"
+          variant="outline"
+          size="lg"
+        >
+          {isProcessing ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          ) : (
+            <Feather className="mr-2 h-5 w-5" />
+          )}
+          Generate Shayari
         </Button>
       </CardFooter>
     </Card>

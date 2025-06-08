@@ -1,7 +1,7 @@
 
 import type { PoemEntry } from './types';
 
-const SAVED_POEMS_KEY = 'poemAI_savedPoems';
+const SAVED_POEMS_KEY = 'poemAI_savedPoems_v2'; // Changed key to avoid conflicts with old structure
 
 export function getSavedPoems(): PoemEntry[] {
   if (typeof window === 'undefined') {
@@ -21,10 +21,12 @@ export function getSavedPoems(): PoemEntry[] {
   return [];
 }
 
-export function savePoemToStorage(poemEntry: Omit<PoemEntry, 'id' | 'createdAt'>): PoemEntry {
+export function savePoemToStorage(
+  poemEntryData: Omit<PoemEntry, 'id' | 'createdAt'>
+): PoemEntry {
   const existingPoems = getSavedPoems();
   const newPoem: PoemEntry = {
-    ...poemEntry,
+    ...poemEntryData,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
   };

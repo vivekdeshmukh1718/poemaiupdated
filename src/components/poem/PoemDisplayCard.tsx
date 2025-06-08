@@ -9,22 +9,40 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PoemDisplayCardProps {
   photoDataUri: string | null;
-  poem: string | null;
+  generatedText: string | null;
+  contentType: 'poem' | 'shayari' | null;
+  language: string | null;
   isLoading: boolean;
   error: string | null;
-  onSavePoem: () => void;
+  onSave: () => void;
   isSavingDisabled: boolean;
 }
 
-export function PoemDisplayCard({ photoDataUri, poem, isLoading, error, onSavePoem, isSavingDisabled }: PoemDisplayCardProps) {
+export function PoemDisplayCard({
+  photoDataUri,
+  generatedText,
+  contentType,
+  language,
+  isLoading,
+  error,
+  onSave,
+  isSavingDisabled,
+}: PoemDisplayCardProps) {
+  
+  const titleText = contentType === 'shayari' ? 'Your Generated Shayari' : 'Your Generated Poem';
+  const descriptionText = contentType ? `Behold the ${contentType} inspired by your image in ${language || 'the selected language'}.` : 'Behold the poetry inspired by your image.';
+  const emptyStateTitle = `Your ${contentType === 'shayari' ? 'shayari' : 'poem'} will appear here.`;
+  const emptyStateInstruction = `Upload a photo and click "Generate ${contentType === 'shayari' ? 'Shayari' : 'Poem'}".`;
+
+
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl">
           <FileText className="h-6 w-6 text-accent" />
-          Your Generated Poem
+          {isLoading ? "Generating..." : (generatedText ? titleText : "Your Generated Content")}
         </CardTitle>
-        <CardDescription>Behold the poetry inspired by your image.</CardDescription>
+        <CardDescription>{isLoading ? "Please wait while we craft your masterpiece." : (generatedText ? descriptionText : "Your generated content will appear here after selection.")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoading && (
@@ -40,14 +58,14 @@ export function PoemDisplayCard({ photoDataUri, poem, isLoading, error, onSavePo
             <p className="text-sm">{error}</p>
           </div>
         )}
-        {!isLoading && !error && !photoDataUri && !poem && (
+        {!isLoading && !error && !photoDataUri && !generatedText && (
            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground border border-dashed rounded-md p-6">
             <ImageIcon className="h-16 w-16 mb-4" />
-            <p className="text-xl font-medium">Your poem will appear here.</p>
-            <p className="text-sm">Upload a photo and click "Generate Poem".</p>
+            <p className="text-xl font-medium">{emptyStateTitle}</p>
+            <p className="text-sm">{emptyStateInstruction}</p>
           </div>
         )}
-        {!isLoading && !error && (photoDataUri || poem) && (
+        {!isLoading && !error && (photoDataUri || generatedText) && (
           <div className="grid md:grid-cols-2 gap-6 items-start">
             {photoDataUri && (
               <div className="aspect-video relative rounded-lg overflow-hidden border bg-muted/50 shadow-inner">
@@ -60,27 +78,27 @@ export function PoemDisplayCard({ photoDataUri, poem, isLoading, error, onSavePo
                 />
               </div>
             )}
-            {poem && (
+            {generatedText && (
               <ScrollArea className="h-64 md:h-auto md:max-h-[calc(100vh-20rem)] p-4 border rounded-lg bg-secondary/30 shadow-inner">
                 <pre className="whitespace-pre-wrap text-sm md:text-base leading-relaxed font-serif text-foreground">
-                  {poem}
+                  {generatedText}
                 </pre>
               </ScrollArea>
             )}
-             {!poem && photoDataUri && (
+             {!generatedText && photoDataUri && (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 border rounded-lg bg-secondary/30 shadow-inner">
                 <FileText className="h-12 w-12 mb-3" />
-                <p className="text-center">Your poem is ready to be generated!</p>
+                <p className="text-center">Your {contentType || "content"} is ready to be generated!</p>
               </div>
             )}
           </div>
         )}
       </CardContent>
-      {!isLoading && !error && poem && photoDataUri && (
+      {!isLoading && !error && generatedText && photoDataUri && (
         <CardFooter>
-          <Button onClick={onSavePoem} disabled={isSavingDisabled} className="w-full" size="lg">
+          <Button onClick={onSave} disabled={isSavingDisabled} className="w-full" size="lg">
             <Save className="mr-2 h-5 w-5" />
-            Save Poem
+            Save {contentType === 'shayari' ? 'Shayari' : 'Poem'}
           </Button>
         </CardFooter>
       )}
