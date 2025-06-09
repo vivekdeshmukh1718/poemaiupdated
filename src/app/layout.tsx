@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'PoemAI - Generate Poems from Photos',
   description: 'Upload a photo and let AI craft a unique poem for you.',
+  other: {
+    'google-adsense-account': 'ca-pub-2762915089616749',
+  }
 };
 
 export default function RootLayout({
