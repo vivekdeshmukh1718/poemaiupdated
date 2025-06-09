@@ -29,10 +29,27 @@ export async function generateContentAction(
     if (result.generatedText) {
       return { generatedText: result.generatedText };
     } else {
-      return { error: 'AI failed to generate content. The result was empty.' };
+      // This case should ideally be caught by the check within the flow itself.
+      return { error: 'AI failed to generate content. The result was empty or in an unexpected format.' };
     }
   } catch (e: any) {
-    console.error('Error generating content:', e);
-    return { error: e.message || 'An unexpected error occurred while generating the content.' };
+    console.error('Error in generateContentAction:', e);
+    let errorMessage = 'An unexpected error occurred while generating the content.';
+    if (e instanceof Error) {
+      errorMessage = e.message;
+    } else if (typeof e === 'string') {
+      errorMessage = e;
+    } else if (e && typeof e.toString === 'function') {
+      errorMessage = e.toString();
+    }
+    // Log the detailed error structure if available
+    if (e && e.details) {
+      console.error('Error details:', JSON.stringify(e.details, null, 2));
+    }
+     if (e && e.stack) {
+      console.error('Error stack:', e.stack);
+    }
+    return { error: errorMessage };
   }
 }
+

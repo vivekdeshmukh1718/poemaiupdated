@@ -43,6 +43,26 @@ Ensure the output is only the {{contentType}} itself.
 
 Photo: {{media url=photoDataUri}}
   `,
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_ONLY_HIGH',
+      },
+      {
+        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE', // Can be a bit more sensitive
+      },
+    ],
+  },
 });
 
 const generateContentFlow = ai.defineFlow(
@@ -54,6 +74,10 @@ const generateContentFlow = ai.defineFlow(
   async input => {
     const {output} = await generateContentPrompt(input);
     // Ensure generatedText is used as the key for the output to match GenerateContentOutputSchema
-    return { generatedText: output!.generatedText };
+    if (!output || typeof output.generatedText !== 'string') {
+      throw new Error('AI model did not return the expected output format.');
+    }
+    return { generatedText: output.generatedText };
   }
 );
+
