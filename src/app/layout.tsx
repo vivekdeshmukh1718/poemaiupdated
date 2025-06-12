@@ -1,7 +1,6 @@
-
-import type {Metadata} from 'next';
-import {Geist, Geist_Mono} from 'next/font/google';
-import Script from 'next/script'; // Import the Script component
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
@@ -32,9 +31,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="AR0wf4sek_1tpT5biK9Rlt5zbmzdByWFlbPTxoJEuAo" />
-        {/* You can place meta tags or other head elements here if needed */}
+        <meta name="google-adsense-account" content="ca-pub-2762915089616749" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* AdSense script as recommended */}
         <Script
           id="adsbygoogle-init"
           strategy="afterInteractive"
